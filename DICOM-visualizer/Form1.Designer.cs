@@ -1,4 +1,6 @@
-﻿namespace DICOM_visualizer
+﻿using SlimDX.Windows;
+
+namespace DICOM_visualizer
 {
     partial class Form1
     {
