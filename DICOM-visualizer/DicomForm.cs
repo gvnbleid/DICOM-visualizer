@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dicom;
 
 namespace DICOM_visualizer
 {
@@ -36,11 +37,17 @@ namespace DICOM_visualizer
             maximalValueLabel.Text = trackBar.Value.ToString();
         }
 
-        private void loadDicomButton_Click(object sender, EventArgs e)
+        private async void loadDicomButton_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "DICOM files | *.dcm";
-            openFileDialog.ShowDialog();
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Filter = "DICOM files | *.dcm";
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    DicomFile dicomBitmap = await Dicom.DicomFile.OpenAsync(openFileDialog.FileName);
+                }
+            }
+                
         }
     }
 }
