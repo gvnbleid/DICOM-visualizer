@@ -107,6 +107,7 @@ namespace DICOM_visualizer
             this.visualizeButton.TabIndex = 11;
             this.visualizeButton.Text = "Visualize in 3D";
             this.visualizeButton.UseVisualStyleBackColor = true;
+            this.visualizeButton.Click += new System.EventHandler(this.visualizeButton_Click);
             // 
             // breakPanel2
             // 
