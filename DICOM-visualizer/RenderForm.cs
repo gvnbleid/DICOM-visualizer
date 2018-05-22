@@ -15,8 +15,6 @@ namespace DICOM_visualizer
 {
     public partial class RenderForm : Form
     {
-        private SlimDX.Direct3D11.Device _device;
-        private SwapChain _swapChain;
         public RenderForm()
         {
             InitializeComponent();            
