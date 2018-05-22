@@ -1,8 +1,6 @@
-﻿using SlimDX.Windows;
-
-namespace DICOM_visualizer
+﻿namespace DICOM_visualizer
 {
-    partial class Form1
+    partial class RenderForm
     {
         /// <summary>
         /// Required designer variable.
@@ -30,12 +28,21 @@ namespace DICOM_visualizer
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            this.SuspendLayout();
+            // 
+            // RenderForm
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Text = "Form1";
+            this.ClientSize = new System.Drawing.Size(784, 761);
+            this.Name = "RenderForm";
+            this.Text = "Rendered object";
+            this.ResumeLayout(false);
+            this.MaximizeBox = false;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+
         }
 
         #endregion
     }
 }
-

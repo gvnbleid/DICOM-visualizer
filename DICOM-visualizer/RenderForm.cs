@@ -1,4 +1,7 @@
-﻿using System;
+﻿using SlimDX.DXGI;
+using SlimDX.Direct3D11;
+using SlimDX.Windows;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -10,11 +13,11 @@ using System.Windows.Forms;
 
 namespace DICOM_visualizer
 {
-    public partial class Form1 : Form
+    public partial class RenderForm : Form
     {
-        public Form1()
+        public RenderForm()
         {
-            InitializeComponent();
+            InitializeComponent();            
         }
     }
 }
