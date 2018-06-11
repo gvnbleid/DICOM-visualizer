@@ -46,6 +46,9 @@ namespace DICOM_visualizer
             this.pathLabel = new System.Windows.Forms.Label();
             this.pathValueLabel = new System.Windows.Forms.Label();
             this.loadDicomButton = new System.Windows.Forms.Button();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.previousButton = new System.Windows.Forms.Button();
+            this.nextButton = new System.Windows.Forms.Button();
             this.mainTableLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dicomPictureBox)).BeginInit();
             this.controlsPanel.SuspendLayout();
@@ -81,6 +84,9 @@ namespace DICOM_visualizer
             // controlsPanel
             // 
             this.controlsPanel.BackColor = System.Drawing.Color.LightGray;
+            this.controlsPanel.Controls.Add(this.nextButton);
+            this.controlsPanel.Controls.Add(this.previousButton);
+            this.controlsPanel.Controls.Add(this.panel1);
             this.controlsPanel.Controls.Add(this.visualizeButton);
             this.controlsPanel.Controls.Add(this.breakPanel2);
             this.controlsPanel.Controls.Add(this.maximalValueLabel);
@@ -214,6 +220,36 @@ namespace DICOM_visualizer
             this.loadDicomButton.UseVisualStyleBackColor = true;
             this.loadDicomButton.Click += new System.EventHandler(this.loadDicomButton_Click);
             // 
+            // panel1
+            // 
+            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel1.Location = new System.Drawing.Point(0, 197);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(163, 5);
+            this.panel1.TabIndex = 11;
+            // 
+            // previousButton
+            // 
+            this.previousButton.Location = new System.Drawing.Point(3, 208);
+            this.previousButton.Name = "button1";
+            this.previousButton.Size = new System.Drawing.Size(157, 23);
+            this.previousButton.TabIndex = 12;
+            this.previousButton.Text = "Previous";
+            this.previousButton.UseVisualStyleBackColor = true;
+            this.previousButton.Click += new System.EventHandler(this.previousButton_Click);
+            this.previousButton.Enabled = false;
+            // 
+            // nextButton
+            // 
+            this.nextButton.Location = new System.Drawing.Point(3, 237);
+            this.nextButton.Name = "button2";
+            this.nextButton.Size = new System.Drawing.Size(157, 23);
+            this.nextButton.TabIndex = 13;
+            this.nextButton.Text = "Next";
+            this.nextButton.UseVisualStyleBackColor = true;
+            this.nextButton.Click += new System.EventHandler(this.nextButton_Click);
+            this.nextButton.Enabled = false;
+            // 
             // DicomForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -251,6 +287,9 @@ namespace DICOM_visualizer
         private System.Windows.Forms.Label minimalValueLabel;
         private System.Windows.Forms.Panel breakPanel2;
         private System.Windows.Forms.Button visualizeButton;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Button nextButton;
+        private System.Windows.Forms.Button previousButton;
     }
 }
 

@@ -22,6 +22,7 @@ namespace DICOM_visualizer
     public partial class DicomForm : Form
     {
         private List<DicomImage> _slices;
+        private int _index = 0;
 
         public DicomForm()
         {
@@ -94,9 +95,10 @@ namespace DICOM_visualizer
                 {
                     ShowErrorWindow(ex.Message, "Error opening DICOM file");
                 }
-                
-
                 System.Diagnostics.Debug.WriteLine("Files added to dictionary: " + _slices.Count);
+                System.Diagnostics.Debug.WriteLine(_slices[0].NumberOfFrames);
+                dicomPictureBox.Image = _slices[0].RenderImage().AsBitmap();
+                nextButton.Enabled = true;
             }                
         }
 
@@ -217,6 +219,20 @@ namespace DICOM_visualizer
 
             backgroundWorker.RunWorkerAsync();
             
+        }
+
+        private void previousButton_Click(object sender, EventArgs e)
+        {
+            dicomPictureBox.Image = _slices[--_index].RenderImage().AsBitmap();
+            if (_index == 0) previousButton.Enabled = false;
+            nextButton.Enabled = true;
+        }
+
+        private void nextButton_Click(object sender, EventArgs e)
+        {
+            dicomPictureBox.Image = _slices[++_index].RenderImage().AsBitmap();
+            if (_index == _slices.Count - 1) nextButton.Enabled = false;
+            previousButton.Enabled = true;
         }
 
         //Device.Crea
