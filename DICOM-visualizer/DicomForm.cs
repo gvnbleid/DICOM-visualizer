@@ -11,6 +11,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dicom;
 using Dicom.Imaging;
+using Dicom.Imaging.Mathematics;
+using Dicom.Imaging.Render;
+using DICOM_visualizer.Helpers;
 using SlimDX;
 using SlimDX.D3DCompiler;
 using SlimDX.Direct3D11;
@@ -22,6 +25,7 @@ namespace DICOM_visualizer
     public partial class DicomForm : Form
     {
         private List<DicomImage> _slices;
+        private List<Point3D[]> _triangles;
         private int _index = 0;
 
         public DicomForm()
@@ -81,6 +85,7 @@ namespace DICOM_visualizer
 
                 try
                 {
+                    //float z;
                     //assuming DICOM files in folder are in order
                     foreach (string fileName in files)
                     {
@@ -99,7 +104,17 @@ namespace DICOM_visualizer
                 System.Diagnostics.Debug.WriteLine(_slices[0].NumberOfFrames);
                 dicomPictureBox.Image = _slices[0].RenderImage().AsBitmap();
                 nextButton.Enabled = true;
+                GenerateTriangles();
             }                
+        }
+
+        private void GenerateTriangles()
+        {
+            List<IPixelData> slices = new List<IPixelData>();
+            foreach (var slice in _slices)
+                slices.Add(PixelDataFactory.Create(DicomPixelData.Create(slice.Dataset), 0));
+            MarchingCubes.TryAlgorithm(slices, 200, 255, out _triangles);
+            System.Diagnostics.Debug.WriteLine("Number of triangles: " + _triangles.Count);
         }
 
         private void ShowErrorWindow(string text, string caption)
@@ -114,111 +129,13 @@ namespace DICOM_visualizer
 
         private void visualizeButton_Click(object sender, EventArgs e)
         {
-            BackgroundWorker backgroundWorker = new BackgroundWorker();
-
-            backgroundWorker.DoWork += (o, args) =>
+            Configuration.EnableObjectTracking = true;
+            var app = new BodyPart(Process.GetCurrentProcess().Handle, _triangles);
+            if (!app.Init())
             {
-                var form = new SlimDX.Windows.RenderForm("Visualization");
-                SlimDX.Direct3D11.Device device;
-                SwapChain swapChain;
-                ShaderSignature inputSignature;
-                VertexShader vertexShader;
-                PixelShader pixelShader;
-
-                var description = new SwapChainDescription()
-                {
-                    BufferCount = 2,
-                    Usage = Usage.RenderTargetOutput,
-                    OutputHandle = form.Handle,
-                    IsWindowed = true,
-                    ModeDescription = new ModeDescription(0, 0, new SlimDX.Rational(60, 1), Format.R8G8B8A8_UNorm),
-                    SampleDescription = new SampleDescription(1, 0),
-                    Flags = SwapChainFlags.AllowModeSwitch,
-                    SwapEffect = SwapEffect.Discard
-                };
-
-                SlimDX.Direct3D11.Device.CreateWithSwapChain(
-                    SlimDX.Direct3D11.DriverType.Hardware,
-                    DeviceCreationFlags.Debug,
-                    description,
-                    out device,
-                    out swapChain);
-
-                using (var factory = swapChain.GetParent<Factory>())
-                    factory.SetWindowAssociation(form.Handle, WindowAssociationFlags.IgnoreAltEnter);
-
-                form.KeyDown += (_, ev) =>
-                {
-                    if (ev.Alt && ev.KeyCode == Keys.Enter)
-                        swapChain.IsFullScreen = !swapChain.IsFullScreen;
-                };
-
-                var context = device.ImmediateContext;
-
-                var viewport = new Viewport(0.0f, 0.0f, form.ClientSize.Width, form.ClientSize.Height);
-
-                RenderTargetView renderTarget;
-                using (var resource = SlimDX.Direct3D11.Resource.FromSwapChain<Texture2D>(swapChain, 0))
-                    renderTarget = new RenderTargetView(device, resource);
-
-                context.Rasterizer.SetViewports(viewport);
-                context.OutputMerger.SetTargets(renderTarget);
-
-                using (var bytecode = ShaderBytecode.CompileFromFile("C:\\Users\\gvnbleid\\Source\\Repos\\DICOM-visualizer\\DICOM-visualizer\\triangle.fx", "VShader", "vs_4_0", ShaderFlags.None, EffectFlags.None))
-                {
-                    inputSignature = ShaderSignature.GetInputSignature(bytecode);
-                    vertexShader = new VertexShader(device, bytecode);
-                }
-
-                using (var bytecode = ShaderBytecode.CompileFromFile("C:\\Users\\gvnbleid\\Source\\Repos\\DICOM-visualizer\\DICOM-visualizer\\triangle.fx", "PShader", "ps_4_0", ShaderFlags.None, EffectFlags.None))
-                    pixelShader = new PixelShader(device, bytecode);
-
-                var vertices = new DataStream(12 * 3, true, true);
-                vertices.Write(new Vector3(0.0f, 0.5f, 0.5f));
-                vertices.Write(new Vector3(0.5f, -0.5f, 0.5f));
-                vertices.Write(new Vector3(-0.5f, -0.5f, 0.5f));
-                vertices.Position = 0;
-
-                var elements = new[] { new InputElement("POSITION", 0, Format.R32G32B32_Float, 0) };
-                var layout = new InputLayout(device, inputSignature, elements);
-                var vertexBuffer = new SlimDX.Direct3D11.Buffer(device, vertices, 12 * 3, ResourceUsage.Default, BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
-
-                context.InputAssembler.InputLayout = layout;
-                context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
-                context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(vertexBuffer, 12, 0));
-
-                context.VertexShader.Set(vertexShader);
-                context.PixelShader.Set(pixelShader);
-
-                MessagePump.Run(form, () =>
-                {
-                    context.ClearRenderTargetView(renderTarget, new SlimDX.Color4(.5f, .5f, 1.0f));
-
-                    context.Draw(3, 0);
-                    swapChain.Present(0, PresentFlags.None);
-                });
-
-                form.FormClosing += (_, ev) =>
-                {
-                    vertices.Close();
-                    vertexBuffer.Dispose();
-                    layout.Dispose();
-                    inputSignature.Dispose();
-                    vertexShader.Dispose();
-                    pixelShader.Dispose();
-                    renderTarget.Dispose();
-                    swapChain.Dispose();
-                    device.Dispose();
-                };
-            };
-
-            backgroundWorker.RunWorkerCompleted += (ob, args) =>
-            {
-                MessageBox.Show("Finiszed");
-            };
-
-            backgroundWorker.RunWorkerAsync();
-            
+                return;
+            }
+            app.Run();
         }
 
         private void previousButton_Click(object sender, EventArgs e)
@@ -238,3 +155,109 @@ namespace DICOM_visualizer
         //Device.Crea
     }
 }
+
+
+//BackgroundWorker backgroundWorker = new BackgroundWorker();
+
+//backgroundWorker.DoWork += (o, args) =>
+//            {
+//                var form = new SlimDX.Windows.RenderForm("Visualization");
+//SlimDX.Direct3D11.Device device;
+//SwapChain swapChain;
+//ShaderSignature inputSignature;
+//VertexShader vertexShader;
+//PixelShader pixelShader;
+
+//var description = new SwapChainDescription()
+//{
+//    BufferCount = 2,
+//    Usage = Usage.RenderTargetOutput,
+//    OutputHandle = form.Handle,
+//    IsWindowed = true,
+//    ModeDescription = new ModeDescription(0, 0, new SlimDX.Rational(60, 1), Format.R8G8B8A8_UNorm),
+//    SampleDescription = new SampleDescription(1, 0),
+//    Flags = SwapChainFlags.AllowModeSwitch,
+//    SwapEffect = SwapEffect.Discard
+//};
+
+//SlimDX.Direct3D11.Device.CreateWithSwapChain(
+//    SlimDX.Direct3D11.DriverType.Hardware,
+//    DeviceCreationFlags.Debug,
+//    description,
+//                    out device,
+//                    out swapChain);
+
+//                using (var factory = swapChain.GetParent<Factory>())
+//                    factory.SetWindowAssociation(form.Handle, WindowAssociationFlags.IgnoreAltEnter);
+
+//                form.KeyDown += (_, ev) =>
+//                {
+//                    if (ev.Alt && ev.KeyCode == Keys.Enter)
+//                        swapChain.IsFullScreen = !swapChain.IsFullScreen;
+//                };
+
+//                var context = device.ImmediateContext;
+
+//var viewport = new Viewport(0.0f, 0.0f, form.ClientSize.Width, form.ClientSize.Height);
+
+//RenderTargetView renderTarget;
+//                using (var resource = SlimDX.Direct3D11.Resource.FromSwapChain<Texture2D>(swapChain, 0))
+//                    renderTarget = new RenderTargetView(device, resource);
+
+//context.Rasterizer.SetViewports(viewport);
+//                context.OutputMerger.SetTargets(renderTarget);
+
+//                using (var bytecode = ShaderBytecode.CompileFromFile("C:\\Users\\gvnbleid\\Source\\Repos\\DICOM-visualizer\\DICOM-visualizer\\triangle.fx", "VShader", "vs_4_0", ShaderFlags.None, EffectFlags.None))
+//                {
+//                    inputSignature = ShaderSignature.GetInputSignature(bytecode);
+//                    vertexShader = new VertexShader(device, bytecode);
+//                }
+
+//                using (var bytecode = ShaderBytecode.CompileFromFile("C:\\Users\\gvnbleid\\Source\\Repos\\DICOM-visualizer\\DICOM-visualizer\\triangle.fx", "PShader", "ps_4_0", ShaderFlags.None, EffectFlags.None))
+//                    pixelShader = new PixelShader(device, bytecode);
+
+//var vertices = new DataStream(12 * 3, true, true);
+//vertices.Write(new Vector3(0.0f, 0.5f, 0.5f));
+//                vertices.Write(new Vector3(0.5f, -0.5f, 0.5f));
+//                vertices.Write(new Vector3(-0.5f, -0.5f, 0.5f));
+//                vertices.Position = 0;
+
+//                var elements = new[] { new InputElement("POSITION", 0, Format.R32G32B32_Float, 0) };
+//var layout = new InputLayout(device, inputSignature, elements);
+//var vertexBuffer = new SlimDX.Direct3D11.Buffer(device, vertices, 12 * 3, ResourceUsage.Default, BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
+
+//context.InputAssembler.InputLayout = layout;
+//                context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
+//                context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(vertexBuffer, 12, 0));
+
+//                context.VertexShader.Set(vertexShader);
+//                context.PixelShader.Set(pixelShader);
+
+//                MessagePump.Run(form, () =>
+//                {
+//                    context.ClearRenderTargetView(renderTarget, new SlimDX.Color4(.5f, .5f, 1.0f));
+
+//                    context.Draw(3, 0);
+//                    swapChain.Present(0, PresentFlags.None);
+//                });
+
+//                form.FormClosing += (_, ev) =>
+//                {
+//                    vertices.Close();
+//                    vertexBuffer.Dispose();
+//                    layout.Dispose();
+//                    inputSignature.Dispose();
+//                    vertexShader.Dispose();
+//                    pixelShader.Dispose();
+//                    renderTarget.Dispose();
+//                    swapChain.Dispose();
+//                    device.Dispose();
+//                };
+//            };
+
+//            backgroundWorker.RunWorkerCompleted += (ob, args) =>
+//            {
+//                MessageBox.Show("Finiszed");
+//            };
+
+//            backgroundWorker.RunWorkerAsync();
