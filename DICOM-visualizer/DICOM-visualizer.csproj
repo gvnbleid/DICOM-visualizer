@@ -107,12 +107,11 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\dx11\DX11\Core\Core.csproj">
+    <ProjectReference Include="..\Core\Core.csproj">
       <Project>{41acbef1-b159-4c49-a0f9-a07911617b52}</Project>
       <Name>Core</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Content Include="FX\color.fx" />
   </ItemGroup>
