@@ -55,7 +55,6 @@ namespace DICOM_visualizer
         {
             _trianglesList = trianglesList;
 
-
             _vb = null;
             _ib = null;
             _fx = null;
@@ -72,7 +71,7 @@ namespace DICOM_visualizer
 
             _lastMousePos = new Point(0, 0);
 
-            _view = Matrix.Identity;
+            _view = Matrix.Translation(0.0f, -2.0f, 0.0f);
             _proj = Matrix.Identity;
             _skullWorld = Matrix.Translation(0.0f, -2.0f, 0.0f);
 

@@ -27,6 +27,7 @@ namespace DICOM_visualizer
         private List<DicomImage> _slices;
         private List<Point3D[]> _triangles;
         private int _index = 0;
+        private int minIsoVal = 0, maxIsoVal = 255;
 
         public DicomForm()
         {
@@ -44,6 +45,7 @@ namespace DICOM_visualizer
             TrackBar trackBar = sender as TrackBar;
             trackBar.Value = Math.Min(trackBar.Value, maximalValueTrackbar.Value);
             minimalValueLabel.Text = trackBar.Value.ToString();
+            minIsoVal = trackBar.Value;
         }
 
         private void maximalValueTrackbar_Scroll(object sender, EventArgs e)
@@ -51,6 +53,7 @@ namespace DICOM_visualizer
             TrackBar trackBar = sender as TrackBar;
             trackBar.Value = Math.Max(trackBar.Value, minimalValueTrackbar.Value);
             maximalValueLabel.Text = trackBar.Value.ToString();
+            maxIsoVal = trackBar.Value;
         }
 
         private void loadDicomButton_Click(object sender, EventArgs e)
@@ -66,7 +69,7 @@ namespace DICOM_visualizer
                 {
                     try
                     {
-                        files = Directory.GetFiles(folderBrowserDialog.SelectedPath);
+                        files = Directory.GetFiles(folderBrowserDialog.SelectedPath).OrderBy(name => name).ToArray();
                         System.Diagnostics.Debug.WriteLine("Files found: " + files.Length.ToString());
                     }
                     catch (Exception ex)
@@ -87,8 +90,10 @@ namespace DICOM_visualizer
                 {
                     //float z;
                     //assuming DICOM files in folder are in order
-                    foreach (string fileName in files)
+                    for(int i=0; i<files.Length; i++)
                     {
+                        var fileName = files[i];
+                        System.Diagnostics.Debug.WriteLine(fileName);
                         var file = DicomFile.Open(fileName);
                         var image = new DicomImage(file.Dataset);
                         //decimal position = file.Dataset.Get<decimal>(DicomTag.ZEffective);
@@ -104,7 +109,6 @@ namespace DICOM_visualizer
                 System.Diagnostics.Debug.WriteLine(_slices[0].NumberOfFrames);
                 dicomPictureBox.Image = _slices[0].RenderImage().AsBitmap();
                 nextButton.Enabled = true;
-                GenerateTriangles();
             }                
         }
 
@@ -113,7 +117,7 @@ namespace DICOM_visualizer
             List<IPixelData> slices = new List<IPixelData>();
             foreach (var slice in _slices)
                 slices.Add(PixelDataFactory.Create(DicomPixelData.Create(slice.Dataset), 0));
-            MarchingCubes.TryAlgorithm(slices, 200, 255, out _triangles);
+            MarchingCubes.TryAlgorithm(slices, minIsoVal, maxIsoVal, out _triangles);
             System.Diagnostics.Debug.WriteLine("Number of triangles: " + _triangles.Count);
         }
 
@@ -129,6 +133,7 @@ namespace DICOM_visualizer
 
         private void visualizeButton_Click(object sender, EventArgs e)
         {
+            GenerateTriangles();
             Configuration.EnableObjectTracking = true;
             var app = new BodyPart(Process.GetCurrentProcess().Handle, _triangles);
             if (!app.Init())
@@ -140,16 +145,30 @@ namespace DICOM_visualizer
 
         private void previousButton_Click(object sender, EventArgs e)
         {
-            dicomPictureBox.Image = _slices[--_index].RenderImage().AsBitmap();
-            if (_index == 0) previousButton.Enabled = false;
-            nextButton.Enabled = true;
+            try
+            {
+                dicomPictureBox.Image = _slices[--_index].RenderImage().AsBitmap();
+                if (_index == 0) previousButton.Enabled = false;
+                nextButton.Enabled = true;
+            }
+            catch(Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+            }
         }
 
         private void nextButton_Click(object sender, EventArgs e)
         {
-            dicomPictureBox.Image = _slices[++_index].RenderImage().AsBitmap();
-            if (_index == _slices.Count - 1) nextButton.Enabled = false;
-            previousButton.Enabled = true;
+            try
+            {
+                dicomPictureBox.Image = _slices[++_index].RenderImage().AsBitmap();
+                if (_index == _slices.Count - 1) nextButton.Enabled = false;
+                previousButton.Enabled = true;
+            }
+            catch(Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+            }
         }
 
         //Device.Crea

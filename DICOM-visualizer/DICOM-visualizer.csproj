@@ -124,9 +124,7 @@
     <Error Condition="!Exists('..\packages\fo-dicom.Desktop.3.0.2\build\net452\fo-dicom.Desktop.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\fo-dicom.Desktop.3.0.2\build\net452\fo-dicom.Desktop.targets'))" />
   </Target>
   <PropertyGroup>
-    <PreBuildEvent>cd FX
-
-"C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Utilities\bin\x64\fxc" /Fc /Od /Zi /T fx_5_0 /Fo color.fxo color.fx
-</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
 </Project>
