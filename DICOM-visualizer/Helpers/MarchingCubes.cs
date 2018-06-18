@@ -12,7 +12,7 @@ namespace DICOM_visualizer.Helpers
 {
     public static class MarchingCubes
     {
-        public static void TryAlgorithm(List<IPixelData> slices, double minIsoLevel, double maxIsoLevel, out List<Vector3[]> triangleList)
+        public static void TryAlgorithm(List<Slice> slices, double minIsoLevel, double maxIsoLevel, out List<Vector3[]> triangleList)
         {
             triangleList = new List<Vector3[]>();
             List<GridCell> gridCells = new List<GridCell>();
@@ -23,7 +23,7 @@ namespace DICOM_visualizer.Helpers
                 Polygonise(cell, minIsoLevel, maxIsoLevel, ref triangleList);
         }
 
-        private static void ConvertToGridCells(IPixelData backSlice, IPixelData frontSlice, int sliceIndex, ref List<GridCell> gridCells)
+        private static void ConvertToGridCells(Slice backSlice, Slice frontSlice, int sliceIndex, ref List<GridCell> gridCells)
         {
             List<GridCell> cells = new List<GridCell>();
             for (int row = 0; row < 100; row++)

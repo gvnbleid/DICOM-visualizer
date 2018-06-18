@@ -16,7 +16,7 @@ namespace Core {
 
         public FontCache(SpriteRenderer sprite) {
             _sprite = sprite;
-            _default = new TextBlockRenderer(sprite, "Arial", FontWeight.Normal, FontStyle.Normal, FontStretch.Normal, 12);
+            //_default = new TextBlockRenderer(sprite, "Arial", FontWeight.Normal, FontStyle.Normal, FontStretch.Normal, 12);
         }
 
         protected override void Dispose(bool disposing) {

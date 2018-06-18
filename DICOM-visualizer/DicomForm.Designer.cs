@@ -34,6 +34,9 @@ namespace DICOM_visualizer
             this.mainTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.dicomPictureBox = new System.Windows.Forms.PictureBox();
             this.controlsPanel = new System.Windows.Forms.Panel();
+            this.nextButton = new System.Windows.Forms.Button();
+            this.previousButton = new System.Windows.Forms.Button();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.visualizeButton = new System.Windows.Forms.Button();
             this.breakPanel2 = new System.Windows.Forms.Panel();
             this.maximalValueLabel = new System.Windows.Forms.Label();
@@ -46,9 +49,6 @@ namespace DICOM_visualizer
             this.pathLabel = new System.Windows.Forms.Label();
             this.pathValueLabel = new System.Windows.Forms.Label();
             this.loadDicomButton = new System.Windows.Forms.Button();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.previousButton = new System.Windows.Forms.Button();
-            this.nextButton = new System.Windows.Forms.Button();
             this.mainTableLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dicomPictureBox)).BeginInit();
             this.controlsPanel.SuspendLayout();
@@ -104,6 +104,36 @@ namespace DICOM_visualizer
             this.controlsPanel.Name = "controlsPanel";
             this.controlsPanel.Size = new System.Drawing.Size(163, 556);
             this.controlsPanel.TabIndex = 1;
+            // 
+            // nextButton
+            // 
+            this.nextButton.Enabled = false;
+            this.nextButton.Location = new System.Drawing.Point(3, 237);
+            this.nextButton.Name = "nextButton";
+            this.nextButton.Size = new System.Drawing.Size(157, 23);
+            this.nextButton.TabIndex = 13;
+            this.nextButton.Text = "Next";
+            this.nextButton.UseVisualStyleBackColor = true;
+            this.nextButton.Click += new System.EventHandler(this.nextButton_Click);
+            // 
+            // previousButton
+            // 
+            this.previousButton.Enabled = false;
+            this.previousButton.Location = new System.Drawing.Point(3, 208);
+            this.previousButton.Name = "previousButton";
+            this.previousButton.Size = new System.Drawing.Size(157, 23);
+            this.previousButton.TabIndex = 12;
+            this.previousButton.Text = "Previous";
+            this.previousButton.UseVisualStyleBackColor = true;
+            this.previousButton.Click += new System.EventHandler(this.previousButton_Click);
+            // 
+            // panel1
+            // 
+            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel1.Location = new System.Drawing.Point(0, 197);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(163, 5);
+            this.panel1.TabIndex = 11;
             // 
             // visualizeButton
             // 
@@ -163,7 +193,8 @@ namespace DICOM_visualizer
             // 
             this.maximalValueTrackbar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.maximalValueTrackbar.Location = new System.Drawing.Point(3, 106);
-            this.maximalValueTrackbar.Maximum = 255;
+            this.maximalValueTrackbar.Maximum = 1000;
+            this.maximalValueTrackbar.Minimum = -1000;
             this.maximalValueTrackbar.Name = "maximalValueTrackbar";
             this.maximalValueTrackbar.Size = new System.Drawing.Size(160, 45);
             this.maximalValueTrackbar.TabIndex = 5;
@@ -173,7 +204,8 @@ namespace DICOM_visualizer
             // minimalValueTrackbar
             // 
             this.minimalValueTrackbar.Location = new System.Drawing.Point(3, 58);
-            this.minimalValueTrackbar.Maximum = 255;
+            this.minimalValueTrackbar.Maximum = 1000;
+            this.minimalValueTrackbar.Minimum = -1000;
             this.minimalValueTrackbar.Name = "minimalValueTrackbar";
             this.minimalValueTrackbar.Size = new System.Drawing.Size(160, 45);
             this.minimalValueTrackbar.TabIndex = 4;
@@ -219,36 +251,6 @@ namespace DICOM_visualizer
             this.loadDicomButton.Text = "Select DICOM file";
             this.loadDicomButton.UseVisualStyleBackColor = true;
             this.loadDicomButton.Click += new System.EventHandler(this.loadDicomButton_Click);
-            // 
-            // panel1
-            // 
-            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.panel1.Location = new System.Drawing.Point(0, 197);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(163, 5);
-            this.panel1.TabIndex = 11;
-            // 
-            // previousButton
-            // 
-            this.previousButton.Location = new System.Drawing.Point(3, 208);
-            this.previousButton.Name = "button1";
-            this.previousButton.Size = new System.Drawing.Size(157, 23);
-            this.previousButton.TabIndex = 12;
-            this.previousButton.Text = "Previous";
-            this.previousButton.UseVisualStyleBackColor = true;
-            this.previousButton.Click += new System.EventHandler(this.previousButton_Click);
-            this.previousButton.Enabled = false;
-            // 
-            // nextButton
-            // 
-            this.nextButton.Location = new System.Drawing.Point(3, 237);
-            this.nextButton.Name = "button2";
-            this.nextButton.Size = new System.Drawing.Size(157, 23);
-            this.nextButton.TabIndex = 13;
-            this.nextButton.Text = "Next";
-            this.nextButton.UseVisualStyleBackColor = true;
-            this.nextButton.Click += new System.EventHandler(this.nextButton_Click);
-            this.nextButton.Enabled = false;
             // 
             // DicomForm
             // 

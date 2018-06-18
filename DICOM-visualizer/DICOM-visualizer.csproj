@@ -68,6 +68,7 @@
     <Compile Include="Helpers\DicomHelper.cs" />
     <Compile Include="Helpers\EdgeTable.cs" />
     <Compile Include="Helpers\MarchingCubes.cs" />
+    <Compile Include="Helpers\Slice.cs" />
     <Compile Include="Helpers\TriTable.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

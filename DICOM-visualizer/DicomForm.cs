@@ -24,26 +24,25 @@ namespace DICOM_visualizer
 {
     public partial class DicomForm : Form
     {
-        private List<DicomImage> _slices;
+        private List<Slice> _slices;
         private List<Vector3[]> _triangles;
         private int _index = 0;
+        private int _minVal = 0, _maxVal = 255;
 
         public DicomForm()
         {
             InitializeComponent();
-            _slices = new List<DicomImage>();
+            _slices = new List<Slice>();
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-
-        }
+       
 
         private void minimalValueTrackbar_Scroll(object sender, EventArgs e)
         {
             TrackBar trackBar = sender as TrackBar;
             trackBar.Value = Math.Min(trackBar.Value, maximalValueTrackbar.Value);
             minimalValueLabel.Text = trackBar.Value.ToString();
+            _minVal = trackBar.Value;
         }
 
         private void maximalValueTrackbar_Scroll(object sender, EventArgs e)
@@ -51,12 +50,13 @@ namespace DICOM_visualizer
             TrackBar trackBar = sender as TrackBar;
             trackBar.Value = Math.Max(trackBar.Value, minimalValueTrackbar.Value);
             maximalValueLabel.Text = trackBar.Value.ToString();
+            _maxVal = trackBar.Value;
         }
 
         private void loadDicomButton_Click(object sender, EventArgs e)
         {
             string[] files = null;
-
+            _slices.Clear();
             using (var folderBrowserDialog = new FolderBrowserDialog())
             {
                 DialogResult result = folderBrowserDialog.ShowDialog();
@@ -90,32 +90,33 @@ namespace DICOM_visualizer
                     foreach (string fileName in files)
                     {
                         var file = DicomFile.Open(fileName);
-                        var image = new DicomImage(file.Dataset);
+                        System.Diagnostics.Debug.WriteLine("spacing: " + file.Dataset.Get<string>(DicomTag.ImagePositionPatient));
                         //decimal position = file.Dataset.Get<decimal>(DicomTag.ZEffective);
                         //Debug.WriteLine($"Add item to directory, key: {position}, value: {image.ToString()}");
-                        _slices.Add(image);
+                        _slices.Add(new Slice(file));
                     }
                 }
                 catch(Exception ex)
                 {
                     ShowErrorWindow(ex.Message, "Error opening DICOM file");
+                    return;
                 }
                 System.Diagnostics.Debug.WriteLine("Files added to dictionary: " + _slices.Count);
-                System.Diagnostics.Debug.WriteLine(_slices[0].NumberOfFrames);
-                dicomPictureBox.Image = _slices[0].RenderImage().AsBitmap();
+                //System.Diagnostics.Debug.WriteLine(_slices[0].NumberOfFrames);
+                dicomPictureBox.Image = _slices[0].RenderImage();
                 nextButton.Enabled = true;
-                GenerateTriangles();
+                
             }                
         }
 
-        private void GenerateTriangles()
-        {
-            List<IPixelData> slices = new List<IPixelData>();
-            foreach (var slice in _slices)
-                slices.Add(PixelDataFactory.Create(DicomPixelData.Create(slice.Dataset), 0));
-            MarchingCubes.TryAlgorithm(slices, 200, 255, out _triangles);
-            System.Diagnostics.Debug.WriteLine("Number of triangles: " + _triangles.Count);
-        }
+        //private void GenerateTriangles()
+        //{
+        //    List<IPixelData> slices = new List<IPixelData>();
+        //    foreach (var slice in _slices)
+        //        slices.Add(PixelDataFactory.Create(DicomPixelData.Create(slice.Dataset), 0));
+        //    MarchingCubes.TryAlgorithm(slices, _minVal, _maxVal, out _triangles);
+        //    System.Diagnostics.Debug.WriteLine("Number of triangles: " + _triangles.Count);
+        //}
 
         private void ShowErrorWindow(string text, string caption)
         {
@@ -129,6 +130,8 @@ namespace DICOM_visualizer
 
         private void visualizeButton_Click(object sender, EventArgs e)
         {
+            //GenerateTriangles();
+            MarchingCubes.TryAlgorithm(_slices, _minVal, _maxVal, out _triangles);
             Configuration.EnableObjectTracking = true;
             var app = new BodyPart.BodyPart(Process.GetCurrentProcess().Handle);
             app.Triangles = _triangles;
@@ -141,15 +144,15 @@ namespace DICOM_visualizer
 
         private void previousButton_Click(object sender, EventArgs e)
         {
-            dicomPictureBox.Image = _slices[--_index].RenderImage().AsBitmap();
+            dicomPictureBox.Image = _slices[--_index].RenderImage();
             if (_index == 0) previousButton.Enabled = false;
             nextButton.Enabled = true;
         }
 
         private void nextButton_Click(object sender, EventArgs e)
         {
-            dicomPictureBox.Image = _slices[++_index].RenderImage().AsBitmap();
-            if (_index == _slices.Count - 1) nextButton.Enabled = false;
+            dicomPictureBox.Image = _slices[++_index].RenderImage();
+            if (_index == _slices.Count) nextButton.Enabled = false;
             previousButton.Enabled = true;
         }
 

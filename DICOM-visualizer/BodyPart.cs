@@ -72,7 +72,7 @@ namespace DICOM_visualizer
                 _inputLayout = null;
                 _theta = 1.5f * MathF.PI;
                 _phi = 0.25f * MathF.PI;
-                _radius = 5.0f;
+                _radius = 500.0f;
 
                 MainWindowCaption = "Box Demo";
                 _lastMousePos = new Point(0, 0);
@@ -191,6 +191,22 @@ namespace DICOM_visualizer
             private void BuildGeometryBuffers()
             {
                 List<VertexPC> vertices = new List<VertexPC>();
+                Vector3[] trianglee = new Vector3[3]
+                {
+                    new Vector3(0,0,0),
+                    new Vector3(0,1,0),
+                    new Vector3(1,0,0)
+                };
+
+                Vector3[] triangleee = new Vector3[3]
+                {
+                    new Vector3(1,0,0),
+                    new Vector3(1,1,0),
+                    new Vector3(2,0,0)
+                };
+                //_triangles.Clear();
+                _triangles.Add(trianglee);
+                _triangles.Add(triangleee);
                 foreach(var triangle in _triangles)
                     foreach(var vertex in triangle)
                         vertices.Add(new VertexPC(vertex, Color.Blue));
