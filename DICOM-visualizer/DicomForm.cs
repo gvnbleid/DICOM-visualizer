@@ -25,7 +25,7 @@ namespace DICOM_visualizer
     public partial class DicomForm : Form
     {
         private List<DicomImage> _slices;
-        private List<Point3D[]> _triangles;
+        private List<Vector3[]> _triangles;
         private int _index = 0;
 
         public DicomForm()
@@ -130,7 +130,8 @@ namespace DICOM_visualizer
         private void visualizeButton_Click(object sender, EventArgs e)
         {
             Configuration.EnableObjectTracking = true;
-            var app = new BodyPart(Process.GetCurrentProcess().Handle, _triangles);
+            var app = new BodyPart.BodyPart(Process.GetCurrentProcess().Handle);
+            app.Triangles = _triangles;
             if (!app.Init())
             {
                 return;

@@ -1,6 +1,7 @@
 ﻿using Dicom.Imaging;
 using Dicom.Imaging.Mathematics;
 using Dicom.Imaging.Render;
+using SlimDX;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +12,9 @@ namespace DICOM_visualizer.Helpers
 {
     public static class MarchingCubes
     {
-        public static void TryAlgorithm(List<IPixelData> slices, double minIsoLevel, double maxIsoLevel, out List<Point3D[]> triangleList)
+        public static void TryAlgorithm(List<IPixelData> slices, double minIsoLevel, double maxIsoLevel, out List<Vector3[]> triangleList)
         {
-            triangleList = new List<Point3D[]>();
+            triangleList = new List<Vector3[]>();
             List<GridCell> gridCells = new List<GridCell>();
             for (int i = 0; i < slices.Count - 1; i++)
                 ConvertToGridCells(slices[i], slices[i + 1], i, ref gridCells);
@@ -30,7 +31,7 @@ namespace DICOM_visualizer.Helpers
                     gridCells.Add(new GridCell(backSlice, frontSlice, row, column, sliceIndex));
         }
 
-        private static void Polygonise(GridCell grid, double minIsoLevel, double maxIsoLevel, ref List<Point3D[]> theTriangleList)
+        private static void Polygonise(GridCell grid, double minIsoLevel, double maxIsoLevel, ref List<Vector3[]> theTriangleList)
         {
             int cubeIndex = 0;
             if (grid.Vertex0.value >= minIsoLevel && grid.Vertex0.value <= maxIsoLevel)
@@ -53,7 +54,7 @@ namespace DICOM_visualizer.Helpers
             if (EdgeTable.LookupTable[cubeIndex] == 0)
                 return;
 
-            Point3D[] verticesList = new Point3D[12];
+            Vector3[] verticesList = new Vector3[12];
 
             if ((EdgeTable.LookupTable[cubeIndex] & 1) > 0)
                 verticesList[0] = VertexInterpolation(grid.Vertex0.point3D, grid.Vertex1.point3D);
@@ -82,7 +83,7 @@ namespace DICOM_visualizer.Helpers
 
             for(int i=0;TriTable.LookupTable[cubeIndex,i] != -1; i+=3)
             {
-                Point3D[] triangle = new Point3D[3];
+                Vector3[] triangle = new Vector3[3];
                 triangle[0] = verticesList[TriTable.LookupTable[cubeIndex, i]];
                 triangle[1] = verticesList[TriTable.LookupTable[cubeIndex, i + 1]];
                 triangle[2] = verticesList[TriTable.LookupTable[cubeIndex, i + 2]];
@@ -91,12 +92,12 @@ namespace DICOM_visualizer.Helpers
             }
         }
 
-        private static Point3D VertexInterpolation(Point3D p1, Point3D p2)
+        private static Vector3 VertexInterpolation(Vector3 p1, Vector3 p2)
         {
-            double x = (p1.X + p2.X) / 2;
-            double y = (p1.Y + p2.Y) / 2;
-            double z = (p1.Z + p2.Z) / 2;
-            return new Point3D(x, y, z);
+            float x = (p1.X + p2.X) / 2f;
+            float y = (p1.Y + p2.Y) / 2f;
+            float z = (p1.Z + p2.Z) / 2f;
+            return new Vector3(x, y, z);
         }
     }
 }
