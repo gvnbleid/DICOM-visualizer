@@ -235,7 +235,7 @@ namespace DICOM_visualizer
             // pathValueLabel
             // 
             this.pathValueLabel.BackColor = System.Drawing.Color.LightGray;
-            this.pathValueLabel.Location = new System.Drawing.Point(40, 3);
+            this.pathValueLabel.Location = new System.Drawing.Point(43, 3);
             this.pathValueLabel.MaximumSize = new System.Drawing.Size(114, 15);
             this.pathValueLabel.MinimumSize = new System.Drawing.Size(114, 15);
             this.pathValueLabel.Name = "pathValueLabel";
@@ -244,7 +244,7 @@ namespace DICOM_visualizer
             // 
             // loadDicomButton
             // 
-            this.loadDicomButton.Location = new System.Drawing.Point(3, 19);
+            this.loadDicomButton.Location = new System.Drawing.Point(3, 25);
             this.loadDicomButton.Name = "loadDicomButton";
             this.loadDicomButton.Size = new System.Drawing.Size(157, 23);
             this.loadDicomButton.TabIndex = 0;
