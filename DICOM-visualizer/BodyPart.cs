@@ -74,7 +74,7 @@ namespace DICOM_visualizer
                 _phi = 0.25f * MathF.PI;
                 _radius = 500.0f;
 
-                MainWindowCaption = "Box Demo";
+                MainWindowCaption = "Body Part";
                 _lastMousePos = new Point(0, 0);
                 _world = Matrix.Identity;
                 _view = Matrix.Identity;
@@ -203,55 +203,7 @@ namespace DICOM_visualizer
                     ResourceOptionFlags.None,
                     0);
                 _boxVB = new Buffer(Device, new DataStream(vertices.ToArray(), true, false), vbd);
-                //var vertices = new[] 
-                //{
-                //    new VertexPC(new Vector3(-1.0f, -1.0f, -1.0f), Color.White),
-                //    new VertexPC(new Vector3(-1, 1, -1), Color.Black),
-                //    new VertexPC(new Vector3(1,1,-1), Color.Red ),
-                //    new VertexPC( new Vector3(1,-1,-1), Color.Green ),
-                //    new VertexPC(new Vector3(-1,-1,1),Color.Blue ),
-                //    new VertexPC(new Vector3(-1,1,1), Color.Yellow ),
-                //    new VertexPC(new Vector3(1,1,1), Color.Cyan ),
-                //    new VertexPC(new Vector3(1,-1,1),Color.Magenta )
-                //};
-                //var vbd = new BufferDescription(
-                //    VertexPC.Stride * vertices.Length,
-                //    ResourceUsage.Immutable,
-                //    BindFlags.VertexBuffer,
-                //    CpuAccessFlags.None,
-                //    ResourceOptionFlags.None,
-                //    0);
-                //_boxVB = new Buffer(Device, new DataStream(vertices, true, false), vbd);
-
-                //var indices = new uint[] 
-                //{
-                //    // front
-                //    0,1,2,
-                //    0,2,3,
-                //    // back
-                //    4,6,5,
-                //    4,7,6,
-                //    // left
-                //    4,5,1,
-                //    4,1,0,
-                //    // right
-                //    3,2,6,
-                //    3,6,7,
-                //    //top
-                //    1,5,6,
-                //    1,6,2,
-                //    // bottom
-                //    4,0,3,
-                //    4,3,7
-                //};
-                //var ibd = new BufferDescription(
-                //    sizeof(uint) * indices.Length,
-                //    ResourceUsage.Immutable,
-                //    BindFlags.IndexBuffer,
-                //    CpuAccessFlags.None,
-                //    ResourceOptionFlags.None,
-                //    0);
-                //_boxIB = new Buffer(Device, new DataStream(indices, false, false), ibd);
+                
             }
             private void BuildFX()
             {
