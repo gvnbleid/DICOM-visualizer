@@ -58,9 +58,9 @@ namespace DICOM_visualizer
 
             private bool _disposed;
 
-            private List<Vector3[]> _triangles;
+            private List<VertexPC[]> _triangles;
 
-            public List<Vector3[]> Triangles { set { _triangles = value; } }
+            public List<VertexPC[]> Triangles { set { _triangles = value; } }
 
             public BodyPart(IntPtr hInstance) : base(hInstance)
             {
@@ -191,25 +191,10 @@ namespace DICOM_visualizer
             private void BuildGeometryBuffers()
             {
                 List<VertexPC> vertices = new List<VertexPC>();
-                Vector3[] trianglee = new Vector3[3]
-                {
-                    new Vector3(0,0,0),
-                    new Vector3(0,1,0),
-                    new Vector3(1,0,0)
-                };
-
-                Vector3[] triangleee = new Vector3[3]
-                {
-                    new Vector3(1,0,0),
-                    new Vector3(1,1,0),
-                    new Vector3(2,0,0)
-                };
-                //_triangles.Clear();
-                _triangles.Add(trianglee);
-                _triangles.Add(triangleee);
+               
                 foreach(var triangle in _triangles)
                     foreach(var vertex in triangle)
-                        vertices.Add(new VertexPC(vertex, Color.Blue));
+                        vertices.Add(vertex);
                 var vbd = new BufferDescription(
                     VertexPC.Stride * vertices.Count,
                     ResourceUsage.Immutable,

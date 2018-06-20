@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Core.Vertex;
 using Dicom;
 using Dicom.Imaging;
 using Dicom.Imaging.Mathematics;
@@ -25,7 +26,7 @@ namespace DICOM_visualizer
     public partial class DicomForm : Form
     {
         private List<Slice> _slices;
-        private List<Vector3[]> _triangles;
+        private List<VertexPC[]> _triangles;
         private int _index = 0;
         private int _minVal = 0, _maxVal = 255;
 
@@ -34,9 +35,7 @@ namespace DICOM_visualizer
             InitializeComponent();
             _slices = new List<Slice>();
         }
-
        
-
         private void minimalValueTrackbar_Scroll(object sender, EventArgs e)
         {
             TrackBar trackBar = sender as TrackBar;
@@ -56,67 +55,59 @@ namespace DICOM_visualizer
         private void loadDicomButton_Click(object sender, EventArgs e)
         {
             string[] files = null;
+            string selectedPath = pathValueLabel.Text;
             _slices.Clear();
-            using (var folderBrowserDialog = new FolderBrowserDialog())
+            if (selectedPath == String.Empty)
             {
-                DialogResult result = folderBrowserDialog.ShowDialog();
-
-                if (result == DialogResult.OK && 
-                    !string.IsNullOrWhiteSpace(folderBrowserDialog.SelectedPath))
+                using (var folderBrowserDialog = new FolderBrowserDialog())
                 {
-                    try
-                    {
-                        files = Directory.GetFiles(folderBrowserDialog.SelectedPath);
-                        System.Diagnostics.Debug.WriteLine("Files found: " + files.Length.ToString());
-                    }
-                    catch (Exception ex)
-                    {
-                        ShowErrorWindow(ex.Message, "Error opening DICOM folder");
-                    }                    
-                }
+                    DialogResult result = folderBrowserDialog.ShowDialog();
 
-                if (result == DialogResult.Cancel || result == DialogResult.Abort)
-                    return;
+                    if (result == DialogResult.OK &&
+                        !string.IsNullOrWhiteSpace(folderBrowserDialog.SelectedPath))
+                        selectedPath = folderBrowserDialog.SelectedPath;
+                    if (result == DialogResult.Cancel || result == DialogResult.Abort)
+                        return;
+                }
+            }
+            try
+            {
+                files = Directory.GetFiles(selectedPath);
+                System.Diagnostics.Debug.WriteLine("Files found: " + files.Length.ToString());
+            }
+            catch (Exception ex)
+            {
+                ShowErrorWindow(ex.Message, "Error opening DICOM folder");
+            }
+            pathValueLabel.Text = selectedPath;
 
-                if (files.Length == 0)
-                {
-                    ShowErrorWindow("Selected directory is empty", "Error: empty directory");
-                }
 
-                try
+            if (files.Length == 0)
+            {
+                ShowErrorWindow("Selected directory is empty", "Error: empty directory");
+                return;
+            }
+
+            try
+            {
+                foreach (string fileName in files)
                 {
-                    //float z;
-                    //assuming DICOM files in folder are in order
-                    foreach (string fileName in files)
-                    {
-                        var file = DicomFile.Open(fileName);
-                        System.Diagnostics.Debug.WriteLine("spacing: " + file.Dataset.Get<string>(DicomTag.ImagePositionPatient));
-                        //decimal position = file.Dataset.Get<decimal>(DicomTag.ZEffective);
-                        //Debug.WriteLine($"Add item to directory, key: {position}, value: {image.ToString()}");
-                        _slices.Add(new Slice(file));
-                    }
+                    var file = DicomFile.Open(fileName);
+                    System.Diagnostics.Debug.WriteLine("spacing: " + file.Dataset.Get<string>(DicomTag.ImagePositionPatient));
+                    _slices.Add(new Slice(file));
                 }
-                catch(Exception ex)
-                {
-                    ShowErrorWindow(ex.Message, "Error opening DICOM file");
-                    return;
-                }
-                System.Diagnostics.Debug.WriteLine("Files added to dictionary: " + _slices.Count);
-                //System.Diagnostics.Debug.WriteLine(_slices[0].NumberOfFrames);
-                dicomPictureBox.Image = _slices[0].RenderImage();
-                nextButton.Enabled = true;
-                
-            }                
+            }
+            catch (Exception ex)
+            {
+                ShowErrorWindow(ex.Message, "Error opening DICOM file");
+                return;
+            }
+            _slices = _slices.OrderBy(slice => slice.SliceLocation).ToList();
+            System.Diagnostics.Debug.WriteLine("Files added to dictionary: " + _slices.Count);
+            dicomPictureBox.Image = _slices[0].RenderImage();
+            nextButton.Enabled = true;
+
         }
-
-        //private void GenerateTriangles()
-        //{
-        //    List<IPixelData> slices = new List<IPixelData>();
-        //    foreach (var slice in _slices)
-        //        slices.Add(PixelDataFactory.Create(DicomPixelData.Create(slice.Dataset), 0));
-        //    MarchingCubes.TryAlgorithm(slices, _minVal, _maxVal, out _triangles);
-        //    System.Diagnostics.Debug.WriteLine("Number of triangles: " + _triangles.Count);
-        //}
 
         private void ShowErrorWindow(string text, string caption)
         {
@@ -130,7 +121,6 @@ namespace DICOM_visualizer
 
         private void visualizeButton_Click(object sender, EventArgs e)
         {
-            //GenerateTriangles();
             MarchingCubes.TryAlgorithm(_slices, _minVal, _maxVal, out _triangles);
             Configuration.EnableObjectTracking = true;
             var app = new BodyPart.BodyPart(Process.GetCurrentProcess().Handle);
@@ -155,113 +145,5 @@ namespace DICOM_visualizer
             if (_index == _slices.Count) nextButton.Enabled = false;
             previousButton.Enabled = true;
         }
-
-        //Device.Crea
     }
 }
-
-
-//BackgroundWorker backgroundWorker = new BackgroundWorker();
-
-//backgroundWorker.DoWork += (o, args) =>
-//            {
-//                var form = new SlimDX.Windows.RenderForm("Visualization");
-//SlimDX.Direct3D11.Device device;
-//SwapChain swapChain;
-//ShaderSignature inputSignature;
-//VertexShader vertexShader;
-//PixelShader pixelShader;
-
-//var description = new SwapChainDescription()
-//{
-//    BufferCount = 2,
-//    Usage = Usage.RenderTargetOutput,
-//    OutputHandle = form.Handle,
-//    IsWindowed = true,
-//    ModeDescription = new ModeDescription(0, 0, new SlimDX.Rational(60, 1), Format.R8G8B8A8_UNorm),
-//    SampleDescription = new SampleDescription(1, 0),
-//    Flags = SwapChainFlags.AllowModeSwitch,
-//    SwapEffect = SwapEffect.Discard
-//};
-
-//SlimDX.Direct3D11.Device.CreateWithSwapChain(
-//    SlimDX.Direct3D11.DriverType.Hardware,
-//    DeviceCreationFlags.Debug,
-//    description,
-//                    out device,
-//                    out swapChain);
-
-//                using (var factory = swapChain.GetParent<Factory>())
-//                    factory.SetWindowAssociation(form.Handle, WindowAssociationFlags.IgnoreAltEnter);
-
-//                form.KeyDown += (_, ev) =>
-//                {
-//                    if (ev.Alt && ev.KeyCode == Keys.Enter)
-//                        swapChain.IsFullScreen = !swapChain.IsFullScreen;
-//                };
-
-//                var context = device.ImmediateContext;
-
-//var viewport = new Viewport(0.0f, 0.0f, form.ClientSize.Width, form.ClientSize.Height);
-
-//RenderTargetView renderTarget;
-//                using (var resource = SlimDX.Direct3D11.Resource.FromSwapChain<Texture2D>(swapChain, 0))
-//                    renderTarget = new RenderTargetView(device, resource);
-
-//context.Rasterizer.SetViewports(viewport);
-//                context.OutputMerger.SetTargets(renderTarget);
-
-//                using (var bytecode = ShaderBytecode.CompileFromFile("C:\\Users\\gvnbleid\\Source\\Repos\\DICOM-visualizer\\DICOM-visualizer\\triangle.fx", "VShader", "vs_4_0", ShaderFlags.None, EffectFlags.None))
-//                {
-//                    inputSignature = ShaderSignature.GetInputSignature(bytecode);
-//                    vertexShader = new VertexShader(device, bytecode);
-//                }
-
-//                using (var bytecode = ShaderBytecode.CompileFromFile("C:\\Users\\gvnbleid\\Source\\Repos\\DICOM-visualizer\\DICOM-visualizer\\triangle.fx", "PShader", "ps_4_0", ShaderFlags.None, EffectFlags.None))
-//                    pixelShader = new PixelShader(device, bytecode);
-
-//var vertices = new DataStream(12 * 3, true, true);
-//vertices.Write(new Vector3(0.0f, 0.5f, 0.5f));
-//                vertices.Write(new Vector3(0.5f, -0.5f, 0.5f));
-//                vertices.Write(new Vector3(-0.5f, -0.5f, 0.5f));
-//                vertices.Position = 0;
-
-//                var elements = new[] { new InputElement("POSITION", 0, Format.R32G32B32_Float, 0) };
-//var layout = new InputLayout(device, inputSignature, elements);
-//var vertexBuffer = new SlimDX.Direct3D11.Buffer(device, vertices, 12 * 3, ResourceUsage.Default, BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
-
-//context.InputAssembler.InputLayout = layout;
-//                context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
-//                context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(vertexBuffer, 12, 0));
-
-//                context.VertexShader.Set(vertexShader);
-//                context.PixelShader.Set(pixelShader);
-
-//                MessagePump.Run(form, () =>
-//                {
-//                    context.ClearRenderTargetView(renderTarget, new SlimDX.Color4(.5f, .5f, 1.0f));
-
-//                    context.Draw(3, 0);
-//                    swapChain.Present(0, PresentFlags.None);
-//                });
-
-//                form.FormClosing += (_, ev) =>
-//                {
-//                    vertices.Close();
-//                    vertexBuffer.Dispose();
-//                    layout.Dispose();
-//                    inputSignature.Dispose();
-//                    vertexShader.Dispose();
-//                    pixelShader.Dispose();
-//                    renderTarget.Dispose();
-//                    swapChain.Dispose();
-//                    device.Dispose();
-//                };
-//            };
-
-//            backgroundWorker.RunWorkerCompleted += (ob, args) =>
-//            {
-//                MessageBox.Show("Finiszed");
-//            };
-
-//            backgroundWorker.RunWorkerAsync();

@@ -26,6 +26,8 @@ namespace DICOM_visualizer.Helpers
             _dicomFile = dicomFile;
         }
 
+        public double SliceLocation => _dicomFile.Dataset.Get<double>(DicomTag.SliceLocation);
+
         public Bitmap RenderImage()
         {
             if (_image != null) return _image;

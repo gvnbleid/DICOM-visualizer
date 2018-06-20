@@ -47,7 +47,7 @@ namespace DICOM_visualizer
             this.minimalValueTrackbar = new System.Windows.Forms.TrackBar();
             this.breakPanel1 = new System.Windows.Forms.Panel();
             this.pathLabel = new System.Windows.Forms.Label();
-            this.pathValueLabel = new System.Windows.Forms.Label();
+            this.pathValueLabel = new System.Windows.Forms.TextBox();
             this.loadDicomButton = new System.Windows.Forms.Button();
             this.mainTableLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dicomPictureBox)).BeginInit();
@@ -74,10 +74,12 @@ namespace DICOM_visualizer
             // 
             // dicomPictureBox
             // 
+            this.dicomPictureBox.BackColor = System.Drawing.Color.Black;
             this.dicomPictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dicomPictureBox.Location = new System.Drawing.Point(3, 3);
             this.dicomPictureBox.Name = "dicomPictureBox";
             this.dicomPictureBox.Size = new System.Drawing.Size(609, 556);
+            this.dicomPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.dicomPictureBox.TabIndex = 0;
             this.dicomPictureBox.TabStop = false;
             // 
@@ -232,10 +234,8 @@ namespace DICOM_visualizer
             // 
             // pathValueLabel
             // 
-            this.pathValueLabel.AutoSize = true;
             this.pathValueLabel.BackColor = System.Drawing.Color.LightGray;
-            this.pathValueLabel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.pathValueLabel.Location = new System.Drawing.Point(43, 3);
+            this.pathValueLabel.Location = new System.Drawing.Point(40, 3);
             this.pathValueLabel.MaximumSize = new System.Drawing.Size(114, 15);
             this.pathValueLabel.MinimumSize = new System.Drawing.Size(114, 15);
             this.pathValueLabel.Name = "pathValueLabel";
@@ -279,7 +279,7 @@ namespace DICOM_visualizer
         private System.Windows.Forms.Panel controlsPanel;
         private System.Windows.Forms.Button loadDicomButton;
         private System.Windows.Forms.Label pathLabel;
-        private System.Windows.Forms.Label pathValueLabel;
+        private System.Windows.Forms.TextBox pathValueLabel;
         private System.Windows.Forms.Panel breakPanel1;
         private System.Windows.Forms.Label maximalLabel;
         private System.Windows.Forms.Label minimalLabel;
